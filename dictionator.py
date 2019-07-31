@@ -1,8 +1,10 @@
-print('''Benvenuto in Dict-ator!!! Questo script creerà degli utili dizionari a partire da alcune parole.
+print('''Benvenuto in Dictionatorator!!! 
+Questo script creerà degli utili dizionari a partire da alcune parole.
 
-11 parole differenti portano a circa 1 milione di possibili risultati, cerca di non esagerare ;)
+10 parole differenti portano a circa 1 milione di possibili risultati, cerca di non esagerare ;)
 
-Premi 1 per scegliere alcune parole per cominciare. Inserisci le tue parole e, quando hai finito, scrivi %%% (3 volte '%') per uscire!''')
+Premi 1 per scegliere alcune parole per cominciare. 
+Inserisci le tue parole e, quando hai finito, scrivi %%% (3 volte '%') per uscire!''')
 lista = []
 scelta = input()
 if scelta == '1':
