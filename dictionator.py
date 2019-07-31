@@ -1,4 +1,4 @@
-print('''Benvenuto in Dictionatorator!!! 
+print('''Benvenuto in Dictionator!!! 
 Questo script creerà degli utili dizionari a partire da alcune parole.
 
 10 parole differenti portano a circa 1 milione di possibili risultati, cerca di non esagerare ;)
