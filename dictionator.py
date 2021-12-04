@@ -1,107 +1,156 @@
-print('''Benvenuto in Dictionator!!! 
-Questo script creerà degli utili dizionari a partire da alcune parole.
+from platform import python_version_tuple
+from tqdm import tqdm
 
-10 parole differenti portano a circa 1 milione di possibili risultati, cerca di non esagerare ;)
+numberOfKeywords = 0
+maxCombinationTreshold = 3
+maxLettersTreshold = 10
+minLettersTreshold = 8
 
-Premi 1 per scegliere alcune parole per cominciare. 
-Inserisci le tue parole e, quando hai finito, scrivi %%% (3 volte '%') per uscire!''')
-lista = []
-scelta = input()
-if scelta == '1':
-    while True:
-        parola = input('Parola -> ')
-        if parola == '%%%':
-            print('Hai inserito {} parole! Calcolo le possibili password...'.format(len(lista)))
-            break
-        else:
-            lista.append(parola)
+#stampa il titolo
+def title():
+    print(r"""                            _""")
+    print(r"""                           .' `'.__""")
+    print(r"""                          /      \ `'"-,""")
+    print(r"""         .-''''--...__..-/ .     |      \ """)
+    print(r"""       .'               ; :'     '.  a   |""")
+    print(r"""      /                 | :.       \     =\                    PROUDLY""")
+    print(r"""      ;                   \':.      /  ,-.__;.-;`           MADE IN ITALY""")
+    print(r"""     /|     .              '--._   /-.7`._..-;`""")
+    print(r"""    ; |       '                |`-'      \  =|""")
+    print(r"""    |/\        .   -' /     /  ;         |  =/""")
+    print(r"""    (( ;.       ,_  .:|     | /     /\   | =|""")
+    print(r"""     ) / `\     | `""`;     / |    | /   / =/""")
+    print(r"""       | ::|    |      \    \ \    \ `--' =/""")
+    print(r"""      /  '/\    /       )    |/     `-...-`""")
+    print(r"""     /    | |  `\    /-'    /;""")
+    print(r"""     \  ,,/ |    \   D    .'  \ """)
+    print(r"""       `""`  \  nnh  D_.-'L__nnh""")
+    print(r"""              `"'"`                               """)
+    print()
+    
+#get list of keywords (seeds)
+def getList():
+    lista = []
+    choice = True
+    title()
+    print("Insert some keywords to process, each separated with a comma [,]. Any spaces will be removed.\n\n\tes: KEYWORDS -> Avocado, Banana, Coffee ...\n\n")
+    while choice:
+        keywords = input("KEYWORDS -> ")
+        keywords = keywords.split(",")
+        for word in keywords:
+            word = word.strip(" ")
+            lista.append(word.lower())
+            for letter in range(len(word)):
+                temp = word[:letter] + word[letter].capitalize() + word[letter+1:]
+                lista.append(temp)
+        print("You inserted %d keywords, is that it? [Y/n]" %len(keywords), end=" ")
+        temp = input()
+        if temp == "Y" or temp == "y" or temp == "yes" or temp == "Yes" or temp == "YES":
+            choice = False
 
-composte = []
-maius = []
+    list(set(lista))
+    global numberOfKeywords 
+    numberOfKeywords = len(lista)
+    return lista
+
+#Keyword list to uppercase
 def maiuscole(lista):
-    print('Le maiuscolizzo....')
-    for parola in lista:
+    print('\nTo uppercase...')
+
+    maius = []
+
+    for parola in tqdm(lista, ncols=50):
         maiusc = parola.upper()
         maius.append(maiusc)
-minus = []
+    return list(set(maius))
 
+#keyword list to lowercase
 def minuscole(lista):
-    print('Le minuscolizzo...')
-    for parola in lista:
+    print('\nTo Lowercase...')
+
+    minus = []
+
+    for parola in tqdm(lista, ncols=50):
         minusc = parola.lower()
         minus.append(minusc)
+    return list(set(minus))
 
-titles = []
-
-def titler(lista):
-    print('Le titolizzo...')
-    for parola in lista:
-        titled = parola.title()
-        titles.append(titled)
-
-
-def compositore(maius, minus, titles):
-    print('Faccio le moltiplicazioni...')
+#combines all the keywords
+def compositore(list):
+    print('\nThinking about combinations...')
     import itertools
-    compostemaius = maius + maius + list(''.join(e) for e in itertools.product(maius, maius))
-    composteminus = minus + minus + list(''.join(e) for e in itertools.product(minus, minus))
-    compostetitles = titles + titles + list(''.join(e) for e in itertools.product(titles, titles))
-    compostemaiusminus = maius + minus + list(''.join(e) for e in itertools.product(maius, minus))
-    composteminusmaius = minus + maius + list(''.join(e) for e in itertools.product(minus, maius))
-    compostemaiustitles = maius + titles + list(''.join(e) for e in itertools.product(maius, titles))
-    compostetitlesmaius = titles + maius + list(''.join(e) for e in itertools.product(titles, maius))
-    composteminustitles = minus + titles + list(''.join(e) for e in itertools.product(minus, titles))
-    compostetitlesminus = titles + minus + list(''.join(e) for e in itertools.product(titles, minus))
-    finale = set(compostemaius + composteminus + compostetitles + compostemaiusminus + composteminusmaius
-                 + compostemaiustitles + compostetitlesmaius + composteminustitles + compostetitlesminus)
+
+    finale = []
+    combinazioni = []
+    for n in tqdm(range(maxCombinationTreshold+1), ncols=50):
+        combinazioni += itertools.combinations(list, n)
+        
+    for combinazione in combinazioni:
+        temp = ''.join(combinazione)
+        finale.append(temp)
+
     return finale
 
 
-
-parolenumerate = []
+#adds numbers to the keywords
 def numeratore(lista):
-    print('Aggiungo dei numeri...')
-    for parola in lista:
-        for i in ["{0:03}".format(i) for i in range(0, 101)]:
+    print('\nThrowing in some numbers...')
+
+    parolenumerate = []
+
+    for parola in tqdm(lista, ncols=50):
+        for i in ["{0:03}".format(i) for i in range(0, 999)]:
             newparola = parola + str(i)
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
-        for i in ["{0:02}".format(i) for i in range(0, 101)]:
+            parolenumerate.append(newparola)
+
+        for i in ["{0:03}".format(i) for i in range(0, 999)]:
+            newparola =  str(i) + parola
+            parolenumerate.append(newparola)
+
+        for i in ["{0:02}".format(i) for i in range(0, 999)]:
             newparola = parola + str(i)
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
-        for i in ["{0:02}".format(i) for i in range(0, 101)]:
+            parolenumerate.append(newparola)
+
+        for i in ["{0:02}".format(i) for i in range(0, 999)]:
             newparola = str(i) + parola
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
-        for i in ["{0:04}".format(i) for i in range(0, 1001)]:
+            parolenumerate.append(newparola)
+
+        for i in ["{0:04}".format(i) for i in range(0, 9999)]:
             newparola = parola + str(i)
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
-        for i in ["{0:03}".format(i) for i in range(0, 101)]:
+            parolenumerate.append(newparola)
+        
+        for i in ["{0:04}".format(i) for i in range(0, 9999)]:
+            newparola = str(i) + parola
+            parolenumerate.append(newparola)
+
+        for i in range(1,999):
             newparola =  str(i) + parola
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
-        for i in range(1,100):
-            newparola =  str(i) + parola
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
-        for i in range(1,100):
+            parolenumerate.append(newparola)
+
+        for i in range(1,9999):
             newparola = parola + str(i)
-            if len(newparola) > 6:
-                parolenumerate.append(newparola)
+            parolenumerate.append(newparola)
+
+    return list(set(parolenumerate))
+
+def setTreshold(lista):
+    print("\nThinning the list based on letters tresholds...")
+    newlista = []
+    for item in tqdm(lista):
+        if len(item) > minLettersTreshold and len(item) < maxLettersTreshold:
+            newlista.append(item)
+    return newlista
 
 
+keylist = getList()
+keylist = keylist + maiuscole(keylist) + minuscole(keylist)
+keylist = compositore(keylist)
+keylist = numeratore(keylist)
+keylist = setTreshold(keylist)
 
-maiuscole(lista)
-minuscole(lista)
-titler(lista)
-
-composte = compositore(maius, minus, titles)
-numeratore(composte)
-finalissimo = set(parolenumerate+maius+minus+titles+list(composte))
-with open('output.txt', 'a+') as output:
-    for elem in finalissimo:
+with open('output.txt', 'w') as output:
+    print("\nFinally writing on a file...")
+    for elem in tqdm(keylist):
         output.write('{}\n'.format(elem))
 
-print('Il tuo file è stato creato con successo! Pronto a fare {} tentativi?'.format(len(finalissimo)))
+print('\n\nFile with {} passwords ready, get a coffe and a HashCat!'.format(len(keylist)))
