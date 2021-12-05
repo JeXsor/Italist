@@ -1,4 +1,2 @@
 aggiunta simboli vari
 aggiungere filtri vari
-
-IMPLEMENTARE MULTIPROCESSING
