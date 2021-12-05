@@ -1,2 +1,4 @@
 aggiunta simboli vari
 aggiungere filtri vari
+
+IMPLEMENTARE MULTITHREADING BENE, IN QUESTO MOMENTO DI BLOCCA
