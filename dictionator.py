@@ -1,10 +1,10 @@
-from platform import python_version_tuple
+import multiprocessing
 from tqdm import tqdm
 
 numberOfKeywords = 0
 maxCombinationTreshold = 3
-maxLettersTreshold = 10
-minLettersTreshold = 8
+maxLettersTreshold = 256
+minLettersTreshold = 0
 
 #stampa il titolo
 def title():
@@ -91,14 +91,12 @@ def compositore(list):
 
     return finale
 
-
 #adds numbers to the keywords
-def numeratore(lista):
-    print('\nThrowing in some numbers...')
+def numeratore(parole, result):
 
     parolenumerate = []
 
-    for parola in tqdm(lista, ncols=50):
+    for parola in tqdm(parole, ncols=50):
         for i in ["{0:03}".format(i) for i in range(0, 999)]:
             newparola = parola + str(i)
             parolenumerate.append(newparola)
@@ -130,11 +128,16 @@ def numeratore(lista):
         for i in range(1,9999):
             newparola = parola + str(i)
             parolenumerate.append(newparola)
+    
+    list(set(parolenumerate))
+    result.send(parolenumerate) 
 
-    return list(set(parolenumerate))
+def addNumbers(lista):
+    for i in range():
+        lista.append(str(i))
 
 def setTreshold(lista):
-    print("\nThinning the list based on letters tresholds...")
+    print("\n\nThinning the list based on letters tresholds...")
     newlista = []
     for item in tqdm(lista):
         if len(item) > minLettersTreshold and len(item) < maxLettersTreshold:
@@ -142,15 +145,47 @@ def setTreshold(lista):
     return newlista
 
 
-keylist = getList()
-keylist = keylist + maiuscole(keylist) + minuscole(keylist)
-keylist = compositore(keylist)
-keylist = numeratore(keylist)
-keylist = setTreshold(keylist)
+if __name__ == '__main__':
+    keylist = getList()
+    keylist = keylist + maiuscole(keylist) + minuscole(keylist)
+    keylist = compositore(keylist)
 
-with open('output.txt', 'w') as output:
-    print("\nFinally writing on a file...")
-    for elem in tqdm(keylist):
-        output.write('{}\n'.format(elem))
+    #optimized numberisation
+    print("\nThrowing in some numbers...")
+    n = int(len(keylist)/4)
 
-print('\n\nFile with {} passwords ready, get a coffe and a HashCat!'.format(len(keylist)))
+    result, functRes = multiprocessing.Pipe()
+
+    lista1 = keylist[:n]
+    lista2 = keylist[n:n*2]
+    lista3 = keylist[n*2:n*3]
+    lista4 = keylist[n*3:]
+
+    p1 = multiprocessing.Process(target=numeratore, args=(lista1,functRes))
+    p2 = multiprocessing.Process(target=numeratore, args=(lista2,functRes))
+    p3 = multiprocessing.Process(target=numeratore, args=(lista3,functRes))
+    p4 = multiprocessing.Process(target=numeratore, args=(lista4,functRes))
+
+    p1.start()
+    p2.start()
+    keylist = keylist + result.recv()
+    keylist = keylist + result.recv()
+    p1.join()
+    p2.join()
+    
+    p3.start()
+    p4.start()
+    keylist = keylist + result.recv()
+    keylist = keylist + result.recv()
+    p3.join()
+    p4.join()
+
+    keylist = addNumbers(keylist)
+    keylist = setTreshold(keylist)
+
+    with open('output.txt', 'w') as output:
+        print("\n\nFinally writing on a file...")
+        for elem in tqdm(keylist):
+            output.write('{}\n'.format(elem))
+
+    print('\n\nFile with {} passwords ready, get a coffe and a HashCat!'.format(len(keylist)))
