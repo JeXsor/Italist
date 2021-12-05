@@ -1,10 +1,52 @@
 import multiprocessing
 from tqdm import tqdm
+import time
 
 numberOfKeywords = 0
-maxCombinationTreshold = 3
+maxCombinationTreshold = 2
 maxLettersTreshold = 256
 minLettersTreshold = 0
+maius = True
+minus = True
+composite = True
+numbers = True
+
+def getSettings():
+    global maxCombinationTreshold
+    global maxLettersTreshold
+    global minLettersTreshold
+    global maius
+    global minus
+    global composite
+    global numbers 
+
+    maxCombinationTreshold = int(input("\nSet maximum number of words per combinations: "))
+    maxLettersTreshold = int(input("\nSet maximum number of letters: "))
+    minLettersTreshold = int(input("\nSet minumum number of letters: "))
+
+    maius = input("\nAdd every word in caps? [Y\\n]")
+    if maius == "y" or maius == "Y":
+        maius = True
+    else:
+        maius = False
+
+    maius = input("\nAdd every word in lows? [Y\\n]")
+    if minus == "y" or minus == "Y":
+        minus = True
+    else:
+        minus = False
+    
+    composite = input("\nAdd composite words? [Y\\n]")
+    if composite == "y" or composite == "Y":
+        composite = True
+    else:
+        composite = False
+    
+    numbers = input("\nAdd some random numbers? [Y\\n]")
+    if numbers == "y" or numbers == "Y":
+        numbers = True
+    else:
+        numbers = False
 
 #stampa il titolo
 def title():
@@ -12,11 +54,11 @@ def title():
     print(r"""                           .' `'.__""")
     print(r"""                          /      \ `'"-,""")
     print(r"""         .-''''--...__..-/ .     |      \ """)
-    print(r"""       .'               ; :'     '.  a   |""")
-    print(r"""      /                 | :.       \     =\                    PROUDLY""")
-    print(r"""      ;                   \':.      /  ,-.__;.-;`           MADE IN ITALY""")
-    print(r"""     /|     .              '--._   /-.7`._..-;`""")
-    print(r"""    ; |       '                |`-'      \  =|""")
+    print(r"""       .'               ; :'     '.  a   |                   DICTIONATOR""")
+    print(r"""      /                 | :.       \     =\  """)
+    print(r"""      ;                   \':.      /  ,-.__;.-;`""")
+    print(r"""     /|     .              '--._   /-.7`._..-;`                PROUDLY""")
+    print(r"""    ; |       '                |`-'      \  =|               MADE IN ITALY""")
     print(r"""    |/\        .   -' /     /  ;         |  =/""")
     print(r"""    (( ;.       ,_  .:|     | /     /\   | =|""")
     print(r"""     ) / `\     | `""`;     / |    | /   / =/""")
@@ -32,7 +74,6 @@ def title():
 def getList():
     lista = []
     choice = True
-    title()
     print("Insert some keywords to process, each separated with a comma [,]. Any spaces will be removed.\n\n\tes: KEYWORDS -> Avocado, Banana, Coffee ...\n\n")
     while choice:
         keywords = input("KEYWORDS -> ")
@@ -130,11 +171,16 @@ def numeratore(parole, result):
             parolenumerate.append(newparola)
     
     list(set(parolenumerate))
-    result.send(parolenumerate) 
+    # result.send(parolenumerate) 
+    return parolenumerate
 
 def addNumbers(lista):
-    for i in range():
-        lista.append(str(i))
+    newlista = []
+
+    for i in tqdm(range(999999)):
+        newlista.append(str(i))
+    
+    return newlista
 
 def setTreshold(lista):
     print("\n\nThinning the list based on letters tresholds...")
@@ -146,41 +192,47 @@ def setTreshold(lista):
 
 
 if __name__ == '__main__':
+    title()
+    getSettings()
     keylist = getList()
-    keylist = keylist + maiuscole(keylist) + minuscole(keylist)
-    keylist = compositore(keylist)
+    if maius:
+        keylist = keylist + maiuscole(keylist)
+    if minus:
+        keylist = keylist + minuscole(keylist)
+    if composite:
+        keylist = compositore(keylist)
 
     #optimized numberisation
     print("\nThrowing in some numbers...")
-    n = int(len(keylist)/4)
+    # n = int(len(keylist)/4)
 
-    result, functRes = multiprocessing.Pipe()
+    # result, functRes = multiprocessing.Pipe()
 
-    lista1 = keylist[:n]
-    lista2 = keylist[n:n*2]
-    lista3 = keylist[n*2:n*3]
-    lista4 = keylist[n*3:]
+    # lista1 = keylist[:n]
+    # lista2 = keylist[n:n*2]
+    # lista3 = keylist[n*2:n*3]
+    # lista4 = keylist[n*3:]
 
-    p1 = multiprocessing.Process(target=numeratore, args=(lista1,functRes))
-    p2 = multiprocessing.Process(target=numeratore, args=(lista2,functRes))
-    p3 = multiprocessing.Process(target=numeratore, args=(lista3,functRes))
-    p4 = multiprocessing.Process(target=numeratore, args=(lista4,functRes))
+    # p1 = multiprocessing.Process(target=numeratore, args=(lista1,functRes))
+    # p2 = multiprocessing.Process(target=numeratore, args=(lista2,functRes))
+    # p3 = multiprocessing.Process(target=numeratore, args=(lista3,functRes))
+    # p4 = multiprocessing.Process(target=numeratore, args=(lista4,functRes))
 
-    p1.start()
-    p2.start()
-    keylist = keylist + result.recv()
-    keylist = keylist + result.recv()
-    p1.join()
-    p2.join()
+    # p1.start()
+    # p2.start()
+    # p3.start()
+    # p4.start()
+    # p3.join()
+    # p4.join()
     
-    p3.start()
-    p4.start()
-    keylist = keylist + result.recv()
-    keylist = keylist + result.recv()
-    p3.join()
-    p4.join()
+    # p1.join()
+    # p2.join()
 
-    keylist = addNumbers(keylist)
+    # keylist = keylist + result.recv()
+    if numbers:
+        keylist = keylist + numeratore(keylist, "")
+        keylist = keylist + addNumbers(keylist)
+   
     keylist = setTreshold(keylist)
 
     with open('output.txt', 'w') as output:
