@@ -1,5 +1,6 @@
 import multiprocessing
 from tqdm import tqdm
+import itertools
 import time
 
 numberOfKeywords = 0
@@ -7,9 +8,11 @@ maxCombinationTreshold = 2
 maxLettersTreshold = 256
 minLettersTreshold = 0
 maius = True
-minus = True
+minus = False
 composite = True
 numbers = True
+simbolsfront = False
+simbolrear = False
 
 def getSettings():
     global maxCombinationTreshold
@@ -19,6 +22,8 @@ def getSettings():
     global minus
     global composite
     global numbers 
+    global simbolsfront
+    global simbolsrear
 
     maxCombinationTreshold = int(input("\nSet maximum number of words per combinations: "))
     maxLettersTreshold = int(input("\nSet maximum number of letters: "))
@@ -47,6 +52,18 @@ def getSettings():
         numbers = True
     else:
         numbers = False
+
+    simbolsfront = input("\nAdd some random simbols at the end? (WARNING: can cause really heavy load and may crash the computer) [Y\\n]")
+    if simbolsfront == "y" or simbolsfront == "Y":
+        simbolsfront = True
+    else:
+        simbolsfront = False
+    
+    simbolsrear = input("\nAdd some random simbols at the beginning? (WARNING: can cause really heavy load and may crash the computer) [Y\\n]")
+    if simbolsrear == "y" or simbolsrear == "Y":
+        simbolsrear = True
+    else:
+        simbolsrear = False
 
 #stampa il titolo
 def title():
@@ -119,7 +136,6 @@ def minuscole(lista):
 #combines all the keywords
 def compositore(list):
     print('\nThinking about combinations...')
-    import itertools
 
     finale = []
     combinazioni = []
@@ -182,6 +198,35 @@ def addNumbers(lista):
     
     return newlista
 
+def addSimbolsFront(lista):
+    print("\n\nAdding some simbols")
+    simboli = ["!", "#", "@", "*", "-", "+", "&"]
+    for i in range(3):
+        temp = itertools.combinations(simboli, i)
+        for combinazione in temp:
+            simboli.append(''.join(combinazione))
+        print(simboli)
+    for parola in tqdm(lista):
+        for s in simboli:
+            newparola = parola + s
+            simboli.append(newparola)
+
+    return simboli
+
+def addSimbolsRear(lista):
+    print("\n\nAdding some simbols")
+    simboli = ["!", "#", "@", "*", "-", "+", "&"]
+    for i in range(3):
+        simboli += itertools.combinations(simboli, i)
+    for parola in tqdm(lista):
+        for s in simboli:
+            newparola = s + parola
+            simboli.append(newparola)
+
+    return simboli
+
+    
+
 def setTreshold(lista):
     print("\n\nThinning the list based on letters tresholds...")
     newlista = []
@@ -232,6 +277,12 @@ if __name__ == '__main__':
     if numbers:
         keylist = keylist + numeratore(keylist, "")
         keylist = keylist + addNumbers(keylist)
+    
+    if simbolsfront:
+        keylist = keylist + addSimbolsFront(keylist)
+    
+    if simbolsrear:
+        keylist = keylist + addSimbolsRear(keylist)
    
     keylist = setTreshold(keylist)
 
